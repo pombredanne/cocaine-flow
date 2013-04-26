@@ -15,7 +15,7 @@ logger = logging.getLogger('storages.elliptics')
 
 class Elliptics(Storage):
     def __init__(self, nodes, groups):
-        self.node = Node(Logger("/tmp/cocainoom-elliptics.log"))
+        self.node = Node(Logger("/tmp/cocainoom-elliptics.log", 1))
         for host, port in nodes.iteritems():
             try:
                 self.node.add_remote(host, int(port))
@@ -27,6 +27,8 @@ class Elliptics(Storage):
             from elliptics import Session
 
             self.storage = Session(self.node)
+            print dir(self.node)
+            print dir(self.storage)
         except ImportError:
             self.storage = self.node
 

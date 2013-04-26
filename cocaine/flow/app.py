@@ -13,6 +13,10 @@ except ImportError:
     import UserDict
     MappingType = (UserDict.UserDict, UserDict.DictMixin, dict)
 
+from gevent import monkey
+from socketio.server import SocketIOServer
+
+monkey.patch_all()
 
 def test_mapping(value):
     return isinstance(value, MappingType)
@@ -68,13 +72,17 @@ def create_app(settings_path='/etc/cocaine-flow/settings.yaml'):
     # JSON API
     app.add_url_rule('/api/auth', view_func=views.auth, methods=['POST'])
     app.add_url_rule('/api/register', view_func=views.register_json, methods=['POST'])
-    app.add_url_rule('/api/userinfo', view_func=views.userinfo, methods=['GET'])
+    #app.add_url_rule('/api/userinfo', view_func=views.userinfo, methods=['GET'])
     app.add_url_rule('/api/logout', view_func=views.logout_json, methods=['GET'])
     app.add_url_rule('/api/check-username', view_func=views.check_username, methods=['GET'])
-    #app.add_url_rule('/api/user-remove', view_func=views.user_remove, methods=['DELETE'])
+    app.add_url_rule('/api/user-remove', view_func=views.user_remove, methods=['DELETE'])
+    app.add_url_rule('/api/applications', view_func=views.get_applications, methods=['GET'])
+    app.add_url_rule('/api/applications/<string:name>/summary', view_func=views.get_application, methods=['GET'])
 
     #TEST STREAM
     app.add_url_rule('/test/stream', view_func=views.streamed_response, methods=['GET'])
+    app.add_url_rule('/api/socket/<path:remaining>', view_func=views.test)
+    app.add_url_rule('/main', view_func=views.main_page)
 
     app.error_handler_spec[None][500] = views.error_handler
 
@@ -94,4 +102,8 @@ if __name__ == '__main__':
     else:
         app = create_app()
 
-    app.run(debug=True, host=app.config.get('HOSTNAME', socket.gethostname()), port=int(app.config['PORT']))
+    monkey.patch_all()
+    #app.run(debug=True, host=app.config.get('HOSTNAME', socket.gethostname()), port=int(app.config['PORT']))
+    PORT = 8080
+    print 'Listening on http://127.0.0.1:%s and on port 10843 (flash policy server)' % PORT
+    SocketIOServer(('rest.dev.yandex.net', PORT), app, resource="api/socket").serve_forever()

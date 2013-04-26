@@ -49,6 +49,29 @@ def get_runlists_apps():
     return json.dumps(storage.read_runlists())
 # 
 
+def get_applications():
+    try:
+        mm = storage.read_manifests()
+        ret = [{  "name" : a.rsplit('_',1)[0],\
+            "hash": a.rsplit('_',1)[1],\
+            "status" : "Ok",\
+            "status-message" : "normal"} for a in mm.keys()]
+        return json.dumps(ret)
+    except RuntimeError:
+        return jsonify([])
+
+def get_application(name):
+    print name
+    try:
+        mm = storage.read_manifests()
+        if not nm.has_key(name):
+            return "FAIL"
+
+    except RuntimeError:
+        print "ERROR"
+    return "OK"
+
+
 def auth():
     username = request.values.get('username')
     password = request.values.get('password')

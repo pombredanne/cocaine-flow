@@ -1,0 +1,45 @@
+<!html>
+<html>
+<head>
+    <title>Ping Pong!</title>
+</head>
+<body>
+    <div>
+        <a class="ping" href="#" data-attack="ping">Userinfo</a>
+        <a class="summary" href="#" data-attack="summary">Summary</a>
+        <a class="ping" href="#" data-attack="fireball">Fireball</a>
+    </div>
+    <div id="result">
+    </div>
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/js/socket.io/socket.io.min.js"></script>
+    <script>
+    $(function(){
+        var socket = io.connect('',  { resource: "api/socket" });
+        socket.on('userinfo',function(data){
+            console.log('pong')
+            console.log(data)
+            $('#result').append(data + '<br/>');
+        });
+        socket.on('summary',function(data){
+            console.log('pong')
+            console.log(data)
+            $('#result').append(data + '<br/>');
+        });
+        $('.ping').click(function(event){
+            event.preventDefault();
+            attack = $(this).data('admin');
+            console.log(attack);
+            socket.emit('userinfo', {'username' : 'admin' } )
+        }); 
+        $('.summary').click(function(event){
+            event.preventDefault();
+            attack = $(this).data('admin');
+            console.log(attack);
+            socket.emit('summary', {'username' : 'admin' } )
+        }); 
+    });
+    </script>
+</body>
+
+</html>
